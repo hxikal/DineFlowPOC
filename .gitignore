@@ -32,3 +32,11 @@ Thumbs.db
 /docs/browser-evidence/
 *.sql.gz
 *.sql.zip
+
+# Local documentation and AI configuration
+/AGENTS.md
+/CLAUDE.md
+/README.md
+/boost.json
+/DineFlow-Dokumen-AI/
+/docs/
