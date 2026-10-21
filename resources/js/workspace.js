@@ -3,19 +3,22 @@ export function initializeWorkspace() {
     let locale = document.documentElement.lang;
     const error = document.getElementById('language-error');
     const bookingCatalog = JSON.parse(document.getElementById('booking-translations')?.textContent || '{}');
+    const reportCatalog = JSON.parse(document.getElementById('report-translations')?.textContent || '{}');
     document.querySelectorAll('[data-locale]').forEach(button => button.addEventListener('click',async () => {
         const buttons=document.querySelectorAll('[data-locale]'); buttons.forEach(b=>b.disabled=true);
         try {
             const response=await fetch(document.body.dataset.localeUrl,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json',Accept:'application/json','X-CSRF-TOKEN':document.querySelector('meta[name=csrf-token]').content},body:JSON.stringify({locale:button.dataset.locale})});
             if(!response.ok) throw new Error('Locale failed');
             const data=await response.json(); const oldLocale=locale; locale=data.locale;
-            const replacements=[...Object.entries(catalog[oldLocale]).map(([key,text])=>[text,catalog[locale][key]]),...Object.entries(bookingCatalog[oldLocale]||{}).map(([key,text])=>[text,bookingCatalog[locale][key]])].sort((a,b)=>b[0].length-a[0].length);
+            const replacements=[...Object.entries(catalog[oldLocale]).map(([key,text])=>[text,catalog[locale][key]]),...Object.entries(bookingCatalog[oldLocale]||{}).map(([key,text])=>[text,bookingCatalog[locale][key]]),...Object.entries(reportCatalog[oldLocale]||{}).map(([key,text])=>[text,reportCatalog[locale][key]])].sort((a,b)=>b[0].length-a[0].length);
             document.documentElement.lang=locale;
-            document.title=`${catalog[locale][document.body.dataset.pageKey]} · DineFlow`;
+            document.title=`${reportCatalog[locale]?.[document.body.dataset.pageKey] || catalog[locale][document.body.dataset.pageKey]} · DineFlow`;
             document.querySelectorAll('[data-admin]').forEach(el=>el.textContent=catalog[locale][el.dataset.admin] || el.dataset.admin);
             document.querySelectorAll('[data-locale]').forEach(el=>el.setAttribute('aria-pressed',String(el.dataset.locale===locale)));
             document.querySelectorAll('[role=alert] p,[role=alert] li,.success-message').forEach(el=>{for(const [before,after] of replacements){if(el.textContent.startsWith(before)){el.textContent=after+el.textContent.slice(before.length);break;}}});
             document.querySelectorAll('[data-booking]').forEach(el=>el.textContent=bookingCatalog[locale]?.[el.dataset.booking] || el.dataset.booking);
+            document.querySelectorAll('[data-report]').forEach(el=>el.textContent=reportCatalog[locale]?.[el.dataset.report] || el.dataset.report);
+            document.querySelectorAll('[data-report-placeholder]').forEach(el=>el.placeholder=reportCatalog[locale]?.[el.dataset.reportPlaceholder] || '');
             document.dispatchEvent(new CustomEvent('dineflow:locale',{detail:{locale}}));
             error.hidden=true;
         } catch {error.hidden=false;error.textContent=locale==='ms'?'Bahasa belum dapat ditukar. Cuba lagi.':'Unable to change language. Try again.';}

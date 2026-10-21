@@ -1,11 +1,30 @@
-@php($pageKey = request()->routeIs('bookings.*') ? (request()->routeIs('bookings.create') ? 'new_booking' : (request()->routeIs('bookings.edit') ? 'edit_booking' : (request()->routeIs('bookings.show') ? 'booking_detail' : 'bookings'))) : (request()->routeIs('table-board') ? 'table_board' : (request()->routeIs('users.*') ? 'users' : (request()->routeIs('configuration.*') ? request()->route('type') : (request()->routeIs('audit.index') ? 'audit' : (request()->routeIs('password.*') ? 'change_password' : 'workspace'))))))<!DOCTYPE html>
-<html lang="{{ app()->getLocale() }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><title>{{ __('admin.'.$pageKey) }} · DineFlow</title>@vite(['resources/css/app.css','resources/js/app.js'])</head>
+@php
+$pageKey = match(true) {
+    request()->routeIs('workspace') => 'dashboard',
+    request()->routeIs('reports.*') => 'reports',
+    request()->routeIs('analytics') => 'analytics',
+    request()->routeIs('bookings.create') => 'new_booking',
+    request()->routeIs('bookings.edit') => 'edit_booking',
+    request()->routeIs('bookings.show') => 'booking_detail',
+    request()->routeIs('bookings.*') => 'bookings',
+    request()->routeIs('table-board') => 'table_board',
+    request()->routeIs('users.*') => 'users',
+    request()->routeIs('configuration.*') => request()->route('type'),
+    request()->routeIs('audit.index') => 'audit',
+    request()->routeIs('password.*') => 'change_password',
+    default => 'workspace',
+};
+@endphp
+<!DOCTYPE html>
+<html lang="{{ app()->getLocale() }}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="csrf-token" content="{{ csrf_token() }}"><title>{{ __( (in_array($pageKey,['dashboard','reports','analytics']) ? 'report.' : 'admin.').$pageKey) }} · DineFlow</title>@vite(['resources/css/app.css','resources/js/app.js'])</head>
 <body data-locale-url="{{ route('locale') }}" class="admin-body" data-page-key="{{ $pageKey }}">
 <a href="#main" class="skip-link">{{ __('ui.skip') }}</a>
 <aside class="sidebar" id="sidebar"><a class="brand" href="{{ route('workspace') }}"><span class="brand-mark">d<span>.</span></span><span>DineFlow<small><x-adminword key="environment" /></small></span></a><p class="nav-caption"><x-adminword key="workspace" /></p><nav>
-<a class="nav-link {{ request()->routeIs('workspace') ? 'active' : '' }}" href="{{ route('workspace') }}"><x-icon /><x-adminword key="workspace" /></a>
+<a class="nav-link {{ request()->routeIs('workspace') ? 'active' : '' }}" href="{{ route('workspace') }}"><x-icon /><x-reportword key="dashboard" /></a>
 <a class="nav-link {{ request()->routeIs('bookings.*') ? 'active' : '' }}" href="{{ route('bookings.index') }}"><x-icon name="calendar" /><x-bookword key="bookings" /></a>
 <a class="nav-link {{ request()->routeIs('table-board') ? 'active' : '' }}" href="{{ route('table-board') }}"><x-icon name="table" /><x-bookword key="table_board" /></a>
+<a class="nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}" href="{{ route('reports.index') }}"><x-icon name="calendar" /><x-reportword key="reports" /></a>
+<a class="nav-link {{ request()->routeIs('analytics') ? 'active' : '' }}" href="{{ route('analytics') }}"><x-icon /><x-reportword key="analytics" /></a>
 @can('administer')
 <a class="nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}" href="{{ route('users.index') }}"><x-icon name="users" /><x-adminword key="users" /></a>
 @foreach(['outlets','sections','tables','payments'] as $type)<a class="nav-link {{ request()->route('type') === $type ? 'active' : '' }}" href="{{ route('configuration.index',$type) }}"><x-icon name="table" /><x-adminword :key="$type" /></a>@endforeach
@@ -24,4 +43,5 @@
 @yield('content')
 <footer><x-adminword key="environment" /><span>Asia/Kuala_Lumpur</span></footer></main></div>
 <script id="admin-translations" type="application/json">{!! json_encode(['ms'=>trans('admin',[],'ms'),'en'=>trans('admin',[],'en')], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>
-<script id="booking-translations" type="application/json">{!! json_encode(['ms'=>trans('booking',[],'ms'),'en'=>trans('booking',[],'en')], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script></body></html>
+<script id="booking-translations" type="application/json">{!! json_encode(['ms'=>trans('booking',[],'ms'),'en'=>trans('booking',[],'en')], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>
+<script id="report-translations" type="application/json">{!! json_encode(['ms'=>trans('report',[],'ms'),'en'=>trans('report',[],'en')], JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script></body></html>

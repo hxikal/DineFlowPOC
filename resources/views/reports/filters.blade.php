@@ -1,0 +1,11 @@
+<form method="GET" action="{{ route('reports.index') }}" class="panel form-panel report-filters">
+<input type="hidden" name="outlet_context" value="{{ $outlet?->getKey() ?? 0 }}">
+<div class="report-filter-grid">
+@foreach(['from','to'] as $key)<label class="admin-field"><x-reportword :key="$key" /><input type="date" name="{{ $key }}" value="{{ $filters[$key] }}" required></label>@endforeach
+<label class="admin-field"><x-reportword key="status" /><select name="status"><option value="" data-report="all">{{ __('report.all') }}</option>@foreach(['booked','cancelled'] as $status)<option value="{{ $status }}" data-report="{{ $status }}" @selected(($filters['status'] ?? '')===$status)>{{ __('report.'.$status) }}</option>@endforeach</select></label>
+@foreach(['payment_method_id'=>[$payments,'payment_method_id','method_name'],'section_id'=>[$sections,'section_id','section_name'],'table_id'=>[$tables,'table_id','table_code']] as $key=>[$options,$id,$name])<label class="admin-field"><x-reportword :key="$key" /><select name="{{ $key }}"><option value="" data-report="all">{{ __('report.all') }}</option>@foreach($options as $option)<option value="{{ $option->$id }}" @selected((int)($filters[$key] ?? 0)===$option->$id)>{{ $option->$name }}</option>@endforeach</select></label>@endforeach
+<label class="admin-field report-search"><x-reportword key="q" /><input type="search" name="q" value="{{ $filters['q'] ?? '' }}" maxlength="100" data-report-placeholder="search_hint" placeholder="{{ __('report.search_hint') }}"></label>
+<label class="admin-field"><x-reportword key="sort" /><select name="sort">@foreach(\App\Services\BookingReports::SORTS as $sort)<option value="{{ $sort }}" data-report="{{ $sort }}" @selected($filters['sort']===$sort)>{{ __('report.'.$sort) }}</option>@endforeach</select></label>
+<label class="admin-field"><x-reportword key="direction" /><select name="direction">@foreach(['desc','asc'] as $direction)<option value="{{ $direction }}" data-report="{{ $direction }}" @selected($filters['direction']===$direction)>{{ __('report.'.$direction) }}</option>@endforeach</select></label>
+</div><div class="form-actions spaced"><button class="button primary"><x-reportword key="apply" /></button><a class="button" href="{{ route('reports.index') }}"><x-reportword key="reset" /></a></div>
+</form>
