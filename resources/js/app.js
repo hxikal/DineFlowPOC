@@ -1,3 +1,5 @@
+import { initializeReservation } from './booking';
+initializeReservation();
 import { initializeWorkspace } from './workspace';
 if (!document.getElementById('translations')) {
     initializeWorkspace();

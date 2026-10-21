@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Booking;
 use App\Models\Outlet;
 use App\Policies\AdministrationPolicy;
+use App\Policies\BookingPolicy;
 use App\Support\DatabaseSafety;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Events\ConnectionEstablished;
@@ -28,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('administer', [AdministrationPolicy::class, 'manage']);
+        Gate::policy(Booking::class, BookingPolicy::class);
         View::composer('layouts.app', function ($view): void {
             $view->with('activeOutlets', Outlet::where('status', 'active')->orderBy('sort_order')->orderBy('outlet_name')->get());
         });

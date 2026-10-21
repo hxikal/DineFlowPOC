@@ -1,0 +1,24 @@
+@extends('layouts.app')
+@section('content')
+@php($safeOld = fn($key,$fallback=null) => is_scalar(old($key,$fallback)) || old($key,$fallback) === null ? old($key,$fallback) : $fallback)
+<section class="page-heading"><div><p class="eyebrow">{{ $outlet->outlet_name }} / <x-bookword key="whole_day" /></p><h1><x-bookword :key="$booking ? 'edit_booking':'new_booking'" /></h1><p class="muted"><x-bookword key="form_context" /></p></div><a class="text-link" href="{{ $booking ? route('bookings.show',$booking->getKey()) : route('bookings.index') }}"><x-bookword key="back" /></a></section>
+@if($booking && $booking->dining_date->isBefore(today()))<div class="alert"><x-bookword key="past_note" /></div>@endif
+<form id="reservation-form" method="POST" action="{{ $booking ? route('bookings.update',$booking->getKey()) : route('bookings.store') }}" data-outlet="{{ $outlet->getKey() }}" data-booking-id="{{ $booking?->getKey() }}" data-availability-url="{{ route('tables.availability') }}">@csrf @if($booking)@method('PUT')<input type="hidden" name="version" value="{{ $safeOld('version',$booking->version) }}">@endif
+<input type="hidden" name="form_outlet_id" value="{{ $outlet->getKey() }}"><input type="hidden" name="operation_key" value="{{ $safeOld('operation_key',$operationKey) }}">
+<div class="booking-layout"><div class="booking-main"><section class="panel form-panel"><div class="section-title"><span class="step">01</span><h2><x-bookword key="detail" /></h2></div><div class="form-grid">
+<label><x-bookword key="date" /><input id="reservation-date" name="dining_date" type="date" value="{{ $date }}" required @if(!$booking || !$booking->dining_date->isBefore(today())) min="{{ today()->toDateString() }}" @endif></label>
+<label><x-bookword key="guest" /><input name="customer_name" value="{{ $safeOld('customer_name',$booking?->customer_name) }}" maxlength="150" required autocomplete="off"></label>
+<label><x-bookword key="contact" /><input name="contact_number" value="{{ $safeOld('contact_number',$booking?->contact_number) }}" type="tel" maxlength="30" required autocomplete="off"></label>
+<label><x-bookword key="payment" /><select name="payment_method_id" required><option value="">—</option>@foreach($payments as $payment)<option value="{{ $payment->getKey() }}" @selected((string)$safeOld('payment_method_id',$booking?->payment_method_id)===(string)$payment->getKey())>{{ $payment->method_name }}{{ $payment->status==='inactive' ? ' · '.__('booking.historical'):'' }}</option>@endforeach</select></label>
+<label class="full-width"><x-bookword key="remark" /><textarea name="remark" rows="3" maxlength="500">{{ $safeOld('remark',$booking?->remark) }}</textarea></label>
+@if($booking && $booking->dining_date->isBefore(today()))<label class="full-width"><x-bookword key="correction_reason" /><textarea name="correction_reason" rows="2" maxlength="1000" required>{{ $safeOld('correction_reason') }}</textarea></label>@endif
+</div>@if($payments->isEmpty())<p class="alert"><x-bookword key="no_payments" /></p>@endif</section>
+<section class="panel table-panel"><div class="panel-heading"><div class="section-title"><span class="step">02</span><div><h2><x-bookword key="tables" /></h2><p class="muted"><x-bookword key="select_hint" /></p></div></div></div><div class="legend booking-legend"><span><i class="legend-dot free"></i><x-bookword key="available" /></span><span><i class="legend-dot reserved"></i><x-bookword key="busy" /></span><span><i class="legend-dot chosen"></i><x-bookword key="selected" /></span></div><p id="availability-state" class="muted board-message" role="status" hidden></p><div id="reservation-tables"></div></section></div>
+<aside class="panel summary-panel"><p class="eyebrow">03 / <x-bookword key="summary" /></p><h2><x-bookword key="summary" /></h2><div id="reservation-selection"></div><p id="reservation-empty" class="empty-state"><x-bookword key="none_selected" /></p><div class="summary-total"><span><x-bookword key="total" /></span><strong id="reservation-total">0</strong></div><div id="reservation-error" class="alert" role="alert" hidden></div><button id="reservation-submit" class="button primary" type="submit" @disabled($payments->isEmpty())><x-bookword :key="$booking ? 'update':'save'" /><x-icon name="arrow" /></button><button id="reservation-clear" type="button" class="text-button"><x-bookword key="clear" /></button><p class="draft-note"><x-bookword key="retry_notice" /></p></aside></div>
+<div id="reservation-hidden"></div>
+<script id="reservation-data" type="application/json">{!! json_encode(['tables'=>$tables,'selected'=>$selection],JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT) !!}</script>
+<noscript><div class="alert">JavaScript lokal diperlukan untuk memilih meja. / Local JavaScript is required to select tables.</div></noscript>
+</form>
+@endsection
+
+

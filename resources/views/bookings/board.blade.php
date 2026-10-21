@@ -1,0 +1,8 @@
+@extends('layouts.app')
+@section('content')
+<section class="page-heading"><div><p class="eyebrow">DineFlow / <x-bookword key="whole_day" /></p><h1><x-bookword key="table_board" /></h1><p class="muted"><x-bookword key="board_intro" /></p></div>@if($outlet)<a class="button primary" href="{{ route('bookings.create',['date'=>$date]) }}"><x-icon name="plus" /><x-bookword key="new_booking" /></a>@endif</section>
+@if(!$outlet)<div class="alert"><x-bookword key="choose_outlet" /></div>@else
+<form method="GET" class="panel form-panel booking-filters"><label class="admin-field"><x-bookword key="date" /><input type="date" name="date" value="{{ $date }}" required></label><button class="button"><x-bookword key="filter" /></button></form>
+<section class="panel table-panel spaced"><div class="panel-heading"><h2>{{ $outlet->outlet_name }} · {{ $date }}</h2><div class="legend"><span><i class="legend-dot free"></i><x-bookword key="available" /></span><span><i class="legend-dot reserved"></i><x-bookword key="busy" /></span></div></div>
+@forelse($tables->groupBy('section_name') as $section=>$items)<h3 class="board-section">{{ $section ?: __('booking.unnamed_section') }}</h3><div class="table-grid">@foreach($items as $table)<a @class(['dining-table','reserved'=>!$table['available']]) href="{{ $table['available'] ? route('bookings.create',['date'=>$date,'table'=>$table['table_id']]) : route('bookings.show',$table['booking_id']) }}"><x-icon name="table" /><strong>{{ $table['table_code'] }}</strong><small><x-bookword :key="$table['available'] ? 'available':'busy'" /></small></a>@endforeach</div>@empty<p class="board-message muted"><x-bookword key="no_tables" /></p>@endforelse</section>@endif
+@endsection

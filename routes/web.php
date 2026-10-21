@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\TableBoardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
 use App\Models\ActivityLog;
@@ -19,6 +21,16 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'store'])->middleware('throttle:30,1')->name('login.store');
 });
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->whereNumber('booking')->name('bookings.show');
+    Route::get('/bookings/{booking}/edit', [BookingController::class, 'edit'])->whereNumber('booking')->name('bookings.edit');
+    Route::put('/bookings/{booking}', [BookingController::class, 'update'])->whereNumber('booking')->name('bookings.update');
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->whereNumber('booking')->name('bookings.cancel');
+    Route::get('/bookings/{booking}/print', [BookingController::class, 'print'])->whereNumber('booking')->name('bookings.print');
+    Route::get('/table-board', [TableBoardController::class, 'index'])->name('table-board');
+    Route::get('/table-availability', [TableBoardController::class, 'availability'])->name('tables.availability');
     Route::get('/workspace', [WorkspaceController::class, 'index'])->name('workspace');
     Route::post('/context', [WorkspaceController::class, 'select'])->name('context');
     Route::post('/logout', [AuthController::class, 'destroy'])->name('logout');
