@@ -51,6 +51,6 @@ class FoundationTest extends TestCase
     {
         $this->assertSame(array_keys(trans('ui', [], 'ms')), array_keys(trans('ui', [], 'en')));
         $this->assertSame('Asia/Kuala_Lumpur', config('app.timezone'));
-        $this->assertSame('dineflow_laravel_session', config('session.cookie'));
+        $this->assertSame('dineflow_laravel_test_session', config('session.cookie'));
     }
 }

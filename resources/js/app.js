@@ -1,4 +1,7 @@
-const dictionaries = JSON.parse(document.getElementById('translations').textContent);
+import { initializeWorkspace } from './workspace';
+if (!document.getElementById('translations')) {
+    initializeWorkspace();
+} else {const dictionaries = JSON.parse(document.getElementById('translations').textContent);
 let locale = document.documentElement.lang;
 const screen = document.body.dataset.screen;
 const $ = (id) => document.getElementById(id);
@@ -140,3 +143,5 @@ document.addEventListener('click', event => {
 });
 translate();
 
+
+}
