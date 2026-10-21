@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\PreviewController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TableBoardController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkspaceController;
@@ -21,6 +22,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'store'])->middleware('throttle:30,1')->name('login.store');
 });
 Route::middleware(['auth', 'active'])->group(function () {
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+    Route::get('/reports/csv', [ReportController::class, 'csv'])->name('reports.csv');
+    Route::get('/reports/print', [ReportController::class, 'print'])->name('reports.print');
+    Route::get('/analytics', [ReportController::class, 'analytics'])->name('analytics');
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
     Route::get('/bookings/create', [BookingController::class, 'create'])->name('bookings.create');
     Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');

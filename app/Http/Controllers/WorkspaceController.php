@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Outlet;
+use App\Services\BookingReports;
 use App\Services\OutletContext;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -11,9 +12,15 @@ use Illuminate\Support\Facades\DB;
 
 class WorkspaceController extends Controller
 {
-    public function index(Request $request, OutletContext $context): View
+    public function index(Request $request, OutletContext $context, BookingReports $reports): View
     {
-        return view('workspace', ['outlet' => $context->current($request)]);
+        $date = $request->validate(['date' => ['nullable', 'date_format:Y-m-d'], 'page' => ['nullable', 'integer', 'min:1']])['date'] ?? $request->session()->get('dining_date', now()->toDateString());
+        $outlet = $context->current($request);
+
+        return DB::transaction(function () use ($date, $outlet, $reports): View {
+            return view('workspace', ['outlet' => $outlet, 'date' => $date, 'metrics' => $reports->dashboard($outlet?->getKey(), $date),
+                'bookings' => $reports->query($outlet?->getKey(), ['from' => $date, 'to' => $date])->with(['assignments.table', 'paymentMethod'])->orderBy('booking_code')->orderBy('booking_id')->paginate(20)->appends(['date' => $date]), 'reports' => $reports]);
+        });
     }
 
     public function select(Request $request): RedirectResponse
